@@ -29,3 +29,33 @@ class EnergySettings:
     def get_factor_source(self): return self._factor_source
     def set_factor_source(self, value):
         self._factor_source = value
+
+class EnergyAnalytics:
+    """Calculates cost and carbon for an energy quantity and period."""
+
+    VALID_PERIODS = {"day", "week", "month"}
+
+    def __init__(self, energy_kwh: float, settings: EnergySettings, period: str = "month"):
+        self._energy_kwh = 0.0
+        self._settings = None
+        self._period = "month"
+        self.initialize(energy_kwh, settings, period)
+
+    def initialize(self, energy_kwh, settings, period):
+        self.set_energy_kwh(energy_kwh)
+        self.set_settings(settings)
+        self.set_period(period)
+
+    def get_energy_kwh(self): return self._energy_kwh
+    def set_energy_kwh(self, value):
+        self._energy_kwh = value
+
+    def get_settings(self): return self._settings
+    def set_settings(self, value):
+        self._settings = value
+
+    def get_period(self): return self._period
+    def set_period(self, value):
+        if value not in self.VALID_PERIODS:
+            raise ValueError("period must be day, week, or month.")
+        self._period = value
