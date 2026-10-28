@@ -11,4 +11,4 @@ Python, Flask, SQLite, HTML/CSS, Chart.js, OpenAI API, pytest, Docker.
 
 ## Subsystem 3: Cost, Savings, Carbon & Score
 ### Uml Diagram
-<img width="1251" height="772" alt="WhatsApp Image 2026-10-28 at 10 43 43 PM" src="https://github.com/user-attachments/assets/6cb9bdd3-a874-4f7e-b175-d4c578100059" />
+<img width="1260" height="732" alt="sub3_uml" src="https://github.com/user-attachments/assets/61ef5f21-2e82-4381-acbe-977a32d9ffbc" />
