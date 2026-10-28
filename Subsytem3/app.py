@@ -59,3 +59,62 @@ class EnergyAnalytics:
         if value not in self.VALID_PERIODS:
             raise ValueError("period must be day, week, or month.")
         self._period = value
+
+class EnergyGoal:
+    """Monthly kWh target and daily alert threshold."""
+
+    def __init__(self, owner_id: int, building_id: int, target_kwh: float,
+                 month: str, daily_limit_kwh: float):
+        self._owner_id = None
+        self._building_id = None
+        self._target_kwh = None
+        self._month = ""
+        self._daily_limit_kwh = None
+        self.initialize(owner_id, building_id, target_kwh, month, daily_limit_kwh)
+
+    def initialize(self, owner_id, building_id, target_kwh, month, daily_limit_kwh):
+        for name, value in (("owner_id", owner_id), ("building_id", building_id)):
+            if not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer.")
+        self.set_owner_id(owner_id)
+        self.set_building_id(building_id)
+        self.set_target_kwh(target_kwh)
+        self.set_month(month)
+        self.set_daily_limit_kwh(daily_limit_kwh)
+
+    def get_owner_id(self): return self._owner_id
+    def set_owner_id(self, value):
+        if not isinstance(value, int) or value <= 0: raise ValueError("owner_id must be positive.")
+        self._owner_id = value
+
+    def get_building_id(self): return self._building_id
+    def set_building_id(self, value):
+        if not isinstance(value, int) or value <= 0: raise ValueError("building_id must be positive.")
+        self._building_id = value
+
+    def get_target_kwh(self): return self._target_kwh
+    def set_target_kwh(self, value): self._target_kwh = value
+
+    def get_month(self): return self._month
+    def set_month(self, value):
+        try:
+            year, month = value.split("-")
+            if len(year) != 4 or not 1 <= int(month) <= 12: raise ValueError
+        except (AttributeError, ValueError):
+            raise ValueError("month must use YYYY-MM format.")
+        self._month = value
+
+    def get_daily_limit_kwh(self): return self._daily_limit_kwh
+    def set_daily_limit_kwh(self, value):
+        self._daily_limit_kwh = value
+
+    def calculate_progress(self, consumed_kwh: float) -> float:
+        consumed = consumed_kwh
+        if self._target_kwh is None or self._target_kwh <= 0:
+            raise ValueError("target_kwh must be greater than zero.")
+        return round(consumed / self._target_kwh * 100, 2)
+
+    def is_daily_limit_exceeded(self, daily_kwh: float) -> bool:
+        if self._daily_limit_kwh is None:
+            raise ValueError("daily_limit_kwh must be set.")
+        return daily_kwh > self._daily_limit_kwh
