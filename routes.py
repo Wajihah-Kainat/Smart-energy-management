@@ -14,7 +14,7 @@ def get_readings():
     return jsonify({"status": "success", "count": len(rows),
                     "data": [row.to_dict() for row in rows]})
 
-#  PERSON 2 ( Get Reading by ID)
+#  Arshia Fatima ( Get Reading by ID)
 @energy_bp.get("/readings/<int:reading_id>")
 def get_reading(reading_id):
     row = db.session.get(EnergyReading, reading_id)
