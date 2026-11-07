@@ -10,8 +10,10 @@
 Python, Flask, SQLite, HTML/CSS, Chart.js, OpenAI API, pytest, Docker.
 
 ## Subsystem 3: Cost, Savings, Carbon & Score
+
 ### Installation cmd
 python -m pip install -r requirements.txt
+
 ### Test Cmd
 cd subsystem3
 python -m pytest -v
