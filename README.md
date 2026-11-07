@@ -38,3 +38,8 @@ python -m unittest discover -s tests -v
 3. Demonstrate `filter | transformer` and explain the overloaded `|` operator.
 4. Run `demo.py` to show inactive/sub-threshold events being discarded and valid events enriched.
 5. Point to `run()`, `__iter__()`, and `__next__()` to explain generator and iterator behavior.
+
+## Class Diagram
+
+<img width="1576" height="754" alt="assignment2_uml" src="https://github.com/user-attachments/assets/1b8b44bf-1aac-4d97-ad9e-e6f113046421" />
+
