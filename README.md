@@ -105,3 +105,5 @@ Use the exact branch name required by your course if it differs.
 - Do not commit `.env` or real database passwords.
 - Run the SQL script before starting the app; the app does not create the database automatically.
 - Update the connection URL to match your local MySQL credentials.
+
+## Presentation Link
