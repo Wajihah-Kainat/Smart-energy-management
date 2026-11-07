@@ -107,3 +107,5 @@ Use the exact branch name required by your course if it differs.
 - Update the connection URL to match your local MySQL credentials.
 
 ## Presentation Link
+
+https://drive.google.com/drive/folders/1temQ9muM6opx40eOGx-91vRio27zdagG?usp=drive_link
