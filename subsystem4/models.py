@@ -53,7 +53,9 @@ class DatabaseManager:
     def _initialize_database(self):
         """Creates the energy_logs table if it doesn't already exist."""
         try:
-            os.makedirs(os.path.dirname(self._db_path), exist_ok=True)
+            dir_name = os.path.dirname(self._db_path)
+            if dir_name:
+                os.makedirs(dir_name, exist_ok=True)
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
@@ -132,7 +134,9 @@ class ReportGenerator:
     def create_pdf_report(self, summary_text, ai_tip):
         """Creates a downloadable PDF report file."""
         try:
-            os.makedirs(os.path.dirname(self._filename), exist_ok=True)
+            dir_name = os.path.dirname(self._filename)
+            if dir_name:
+                os.makedirs(dir_name, exist_ok=True)
             doc = SimpleDocTemplate(self._filename, pagesize=letter)
             styles = getSampleStyleSheet()
             story = []
