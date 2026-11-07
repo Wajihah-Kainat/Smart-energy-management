@@ -17,3 +17,6 @@ Python, Flask, SQLite, HTML/CSS, Chart.js, OpenAI API, pytest, Docker.
 ### Uml Diagram
 <img width="1380" height="1056" alt="uml_subsystem1" src="https://github.com/user-attachments/assets/4e64951d-cfcd-426e-a84a-4e5b85de0132" />
 
+## Presentation Link:
+
+
