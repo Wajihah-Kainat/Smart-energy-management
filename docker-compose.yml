@@ -1,0 +1,13 @@
+services:
+  subsystem3:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_PATH: /app/data/smart_energy.sqlite3
+      FLASK_DEBUG: "0"
+      SECRET_KEY: "change-this-for-local-development"
+    volumes:
+      - energy_data:/app/data
+volumes:
+  energy_data:

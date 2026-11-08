@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subsystem 3 · Energy Impact</title>
+  <link rel="stylesheet" href="{{ url_for('subsystem3.static', filename='style.css') }}">
+</head>
+<body>
+<header><div><p class="eyebrow">SMART ENERGY MANAGEMENT</p><h1>Cost, Savings & Carbon</h1></div><span class="tag">Subsystem 3 · OOP</span></header>
+<main>
+  <section class="panel">
+    <h2>1. Configure building settings</h2>
+    <form id="settings-form" class="form-grid">
+      <label>Building ID<input name="building_id" type="number" min="1" value="1" required></label>
+      <label>Price per kWh (€)<input name="price_per_kwh" type="number" min="0" step="0.0001" value="0.30" required></label>
+      <label>Emission factor (kg CO₂/kWh)<input name="emission_factor" type="number" min="0" step="0.0001" value="0.40" required></label>
+      <label>Factor source<input name="factor_source" value="Illustrative demo value" required></label>
+      <button>Save settings</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>2. Add an energy reading</h2>
+    <form id="reading-form" class="form-grid">
+      <label>Building ID<input name="building_id" type="number" min="1" value="1" required></label>
+      <label>Date<input name="reading_date" type="date" required></label>
+      <label>Energy (kWh)<input name="amount_kwh" type="number" min="0" step="0.001" value="10" required></label>
+      <label class="check"><input name="is_simulated" type="checkbox"> Simulated reading</label>
+      <button>Add reading</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>3. Monthly goal</h2>
+    <form id="goal-form" class="form-grid">
+      <label>Building ID<input name="building_id" type="number" min="1" value="1" required></label>
+      <label>Month<input name="month" type="month" required></label>
+      <label>Target (kWh)<input name="target_kwh" type="number" min="0.001" step="0.001" value="300" required></label>
+      <label>Daily limit (kWh)<input name="daily_limit_kwh" type="number" min="0.001" step="0.001" value="20" required></label>
+      <button>Save goal</button>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="section-heading"><div><h2>4. Analytics</h2><p class="muted">Select a building and month. Configure settings before loading analytics.</p></div></div>
+    <form id="analytics-form" class="form-grid compact">
+      <label>Building ID<input name="building_id" type="number" min="1" value="1" required></label>
+      <label>Month<input name="date" type="date" required></label>
+      <button>Load analytics</button>
+    </form>
+    <div id="kpis" class="kpis">
+      <article><span>Energy</span><strong id="kpi-energy">—</strong></article>
+      <article><span>Cost</span><strong id="kpi-cost">—</strong></article>
+      <article><span>Carbon</span><strong id="kpi-carbon">—</strong></article>
+      <article><span>Sustainability score</span><strong id="kpi-score">—</strong></article>
+    </div>
+    <div id="analytics-message" class="message" role="status">Save settings and add readings, then load analytics.</div>
+    <div class="actions"><button id="load-alerts" type="button" class="secondary">Load alerts</button><button id="evaluate-alert" type="button" class="secondary">Evaluate daily limit</button></div>
+    <div id="alerts" class="alerts"></div>
+  </section>
+  <p class="footnote">Demo note: this standalone UI uses a development-only owner ID. Integrate with Subsystem 1 authentication before deployment.</p>
+</main>
+<script src="{{ url_for('subsystem3.static', filename='app.js') }}"></script>
+</body></html>

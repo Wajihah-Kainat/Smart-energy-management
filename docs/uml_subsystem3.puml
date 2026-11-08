@@ -1,0 +1,75 @@
+@startuml
+skinparam classAttributeIconSize 0
+title Subsystem 3 — Cost, Savings, Carbon & Score
+
+class EnergySettings {
+  - _building_id: int
+  - _price_per_kwh: float
+  - _emission_factor: float
+  - _factor_source: str
+  + __init__(building_id, price_per_kwh, emission_factor, factor_source)
+  + initialize(...)
+  + get_price_per_kwh(): float
+  + set_price_per_kwh(value): void
+  + get_emission_factor(): float
+  + set_emission_factor(value): void
+  + get_factor_source(): str
+  + set_factor_source(value): void
+}
+
+class EnergyAnalytics {
+  - _energy_kwh: float
+  - _settings: EnergySettings
+  - _period: str
+  + __init__(energy_kwh, settings, period)
+  + initialize(...)
+  + calculate_cost(): float
+  + calculate_carbon_emissions(): float
+  + get_energy_kwh(): float
+  + set_energy_kwh(value): void
+  + get_period(): str
+  + set_period(value): void
+}
+
+class SustainabilityScore {
+  - _current_energy_kwh: float
+  - _monthly_target_kwh: float
+  - _current_carbon_kg: float
+  - _previous_carbon_kg: Optional[float]
+  - _score: float
+  + __init__(...)
+  + initialize(...)
+  + calculate_score(): float
+  + get_score(): float
+  + set_score(value): void
+}
+
+class EnergyGoal {
+  - _owner_id: int
+  - _building_id: int
+  - _target_kwh: float
+  - _month: str
+  - _daily_limit_kwh: float
+  + __init__(...)
+  + initialize(...)
+  + calculate_progress(consumed_kwh): float
+  + is_daily_limit_exceeded(daily_kwh): bool
+}
+
+class EnergyAlert {
+  - _owner_id: int
+  - _building_id: int
+  - _message: str
+  - _created_at: str
+  - _is_read: bool
+  + __init__(...)
+  + initialize(...)
+  + mark_read(): void
+  + get_is_read(): bool
+  + set_is_read(value): void
+}
+
+EnergyAnalytics --> EnergySettings : uses
+SustainabilityScore ..> EnergyGoal : uses target
+EnergyGoal ..> EnergyAlert : triggers alert
+@enduml
