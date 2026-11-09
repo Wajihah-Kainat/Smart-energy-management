@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ building['name'] }} - Smart Energy{% endblock %}
+{% block nav_buildings %}active{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>{{ building['name'] }} <span class="badge">{{ building['type'] }}</span></h1>
+    <div class="sub">{{ building['address'] }} · Comfort temperature {{ '%g' % building['comfort_temp'] }} °C</div>
+  </div>
+  <div class="row-actions">
+    <a class="btn sec" href="{{ url_for('s1.buildings') }}">Back to buildings</a>
+    <a class="btn sec" href="{{ url_for('s1.buildings', edit=building['id']) }}">Edit building</a>
+    <form method="post" action="{{ url_for('s1.delete_building', building_id=building['id']) }}"
+          onsubmit="return confirm('Delete this building and its devices?');">
+      <button class="btn danger" type="submit">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="grid g21">
+  <div class="card">
+    <b>Devices in this building</b>
+    <table>
+      <tr><th>Name</th><th>Energy type</th><th></th></tr>
+      {% for d in devices %}
+      <tr>
+        <td>{{ d['name'] }}</td>
+        <td><span class="badge">{{ d['energy_type'] }}</span></td>
+        <td class="row-actions">
+          <a class="btn sec small" href="{{ url_for('s1.building_detail', building_id=building['id'], edit_device=d['id']) }}">Edit</a>
+          <form method="post" action="{{ url_for('s1.delete_device', device_id=d['id']) }}"
+                onsubmit="return confirm('Delete this device?');">
+            <button class="btn danger small" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="sub">No devices yet. Add one with the form on the right.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="card form-card">
+    <b>{{ 'Edit device' if edit_device else 'Add device' }}</b>
+    <form method="post" action="{{ url_for('s1.edit_device', device_id=edit_device['id']) if edit_device else url_for('s1.add_device', building_id=building['id']) }}">
+      <label for="name">Name</label>
+      <input class="input" id="name" name="name" value="{{ form.name }}" placeholder="e.g. Heat pump" required>
+      <label for="energy_type">Energy type</label>
+      <select class="input" id="energy_type" name="energy_type">
+        {% for t in energy_types %}<option value="{{ t }}" {{ 'selected' if form.energy_type == t }}>{{ t }}</option>{% endfor %}
+      </select>
+      <div class="actions">
+        <button class="btn" type="submit">{{ 'Save changes' if edit_device else 'Add device' }}</button>
+        {% if edit_device %}<a class="btn sec" href="{{ url_for('s1.building_detail', building_id=building['id']) }}">Cancel</a>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

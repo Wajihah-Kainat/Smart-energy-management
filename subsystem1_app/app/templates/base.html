@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Smart Energy{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><img src="{{ url_for('static', filename='logo.svg') }}" alt="Smart Energy logo" height="32">Smart <span>Energy</span></div>
+    <div class="nav">
+      {% if g.user %}<a class="{% block nav_buildings %}{% endblock %}" href="{{ url_for('s1.buildings') }}">Buildings</a>{% endif %}
+    </div>
+    {% if g.user %}
+    <form class="user" method="post" action="{{ url_for('s1.logout') }}">
+      {{ g.user['name'] }} &nbsp;|&nbsp; <button class="linkbtn" type="submit">Log out</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="page">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
