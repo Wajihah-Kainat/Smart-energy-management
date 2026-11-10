@@ -1,10 +1,10 @@
 # AI-Powered Smart Energy Management System
 
 ## Team Members & Roles
-- **Arshia Fatima** - Subsystem 1: User & Building Management
-- **Melika Soheilifar** - Subsystem 2: Energy Monitoring & Dashboard
-- **Wajihah Kainat** - Subsystem 3: Cost, Savings, Carbon & Score
-- **Faryal Mahmood** - Subsystem 4: AI Sustainability Coach & Reports
+- **Arshia Fatima** — Subsystem 1: User & Building Management
+- **Melika Soheilifar** — Subsystem 2: Energy Monitoring & Dashboard
+- **Wajihah Kainat** — Subsystem 3: Cost, Savings, Carbon & Score
+- **Faryal Mahmood** — Subsystem 4: AI Sustainability Coach & Reports
 
 ## Technology Stack
 Python, Flask, SQLite, HTML/CSS, Chart.js, OpenAI API, pytest, Docker.
@@ -12,32 +12,139 @@ Python, Flask, SQLite, HTML/CSS, Chart.js, OpenAI API, pytest, Docker.
 ## Subsystem 1: User & Building Management
 The UML diagram shows the three classes of Subsystem 1: User, Building and Device, with private attributes and public getters and setters.
 
-One User owns many Buildings (1 to 0..*), and one Building contains many Devices (1 to 0..*); the links are stored as user_id in Building and building_id in Device.
+One User owns many Buildings (1 to 0..*), and one Building contains many Devices (1 to 0..*); the links are stored as `user_id` in Building and `building_id` in Device.
 
-### Uml Diagram
+### UML Diagram
 <img width="1380" height="1056" alt="uml_subsystem1" src="https://github.com/user-attachments/assets/ca1374c1-416a-42b7-8570-944d716853d4" />
 
 ## Subsystem 2: Energy Monitoring & Dashboard
 
-### Uml Diagram
+### UML Diagram
 <img width="1448" height="975" alt="WhatsApp Image 2026-11-07 at 18 39 15" src="https://github.com/user-attachments/assets/f2befd8d-9879-4833-8a40-fa99fb23bccd" />
 
 ## Subsystem 3: Cost, Savings, Carbon & Score
-### Installation cmd
+### Installation Command
+```bash
 python -m pip install -r requirements.txt
-### Test Cmd
+```
+### Test Command
+```bash
 cd subsystem3
 python -m pytest -v
+```
 
-### Uml Diagram
+### UML Diagram
 <img width="1181" height="732" alt="sub3_uml" src="https://github.com/user-attachments/assets/841658e4-5c35-489a-8207-40ec48fd8545" />
 
-##  Subsystem 4: AI Sustainability Coach & Reports
+## Subsystem 4: AI Sustainability Coach & Reports
 
-### Uml Diagram
+### Installation & Test Commands
+```bash
+python -m pip install -r requirements.txt
+PYTHONPATH=. python3 -m pytest -v
+```
+
+### UML Diagram
 <img width="1381" height="718" alt="WhatsApp Image 2026-11-07 at 18 29 11" src="https://github.com/user-attachments/assets/cf4395cb-880b-450c-9393-0950ca5dd39d" />
 
 ## Presentation Link
 
-https://drive.google.com/drive/folders/1uDiISZIS1JcYvcanFNMtXTVZVyKt_kZe?usp=drive_link
+[https://drive.google.com/drive/folders/1uDiISZIS1JcYvcanFNMtXTVZVyKt_kZe?usp=drive_link](https://drive.google.com/drive/folders/1uDiISZIS1JcYvcanFNMtXTVZVyKt_kZe?usp=drive_link)
 
+## Implemented OOP Classes (Subsystem 4)
+All classes are in `subsystem4/models.py`. Each class has a constructor, initialization/configuration logic, getters and setters, and validation where appropriate.
+- **AICoachEngine**: processes building type and time period inputs for generative or rule-based recommendations.
+- **ReportGenerator**: structures aggregated SQLite energy metrics and PDF layout generation.
+- **EnergyDataConnector**: manages local telemetry lookup and persistence for Subsystem 4.
+- **CoachPromptBuilder**: formats customized prompt contexts based on building utilization metrics.
+- **ReportTemplateManager**: validates template rendering and file assets.
+
+## Architecture
+- **models.py**: OOP domain model, AI recommendation logic, and reporting structure.
+- **db.py**: SQLite schema and local persistence helpers.
+- **services.py**: application use cases connecting models to coach and reporting data.
+- **app.py**: Flask Blueprint routes, dashboard views, and PDF download endpoints (`subsystem4_bp`).
+- **errors.py**: custom validation and template lookup exceptions that standardize HTTP handling.
+- **templates/ and static/:** web dashboard, coach interface, and report templates.
+- **tests/:** unit and integration test suites (`test_subsystem4.py`).
+
+## Error Handling Approach
+This project follows the Python exception model from the official tutorial: raise explicit exceptions for invalid input, lookup misses, and template failures, then translate them into consistent HTTP responses in the Flask blueprint. Each domain area (coaching, reporting, and dashboard rendering) has a dedicated custom exception type to make failures easier to diagnose and test.
+
+The class model is intentionally separate from Flask so it can be tested without running the web server.
+
+## Formulas and Assumptions
+- AI recommendation heuristics select targeted conservation advice matching specific building profiles (e.g., HVAC scheduling, envelope insulation, LED retrofits).
+- PDF generation packages aggregated SQLite energy metrics into a formatted document output stream (`sustainability_report.pdf`).
+- Parameter validation checks form payloads for the coach endpoint to prevent empty inputs or invalid period selections.
+
+The coach advice and generated reports are configured for demonstration and project evaluation purposes.
+
+## Run Locally (Windows PowerShell)
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+python app.py
+```
+
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000).
+
+To add demo data, in another terminal run:
+```powershell
+.venv\Scripts\Activate.ps1
+python seed_demo.py
+```
+
+Demo data uses owner ID 1, building ID 1.
+
+## Run Tests
+```bash
+PYTHONPATH=. python3 -m pytest -v
+```
+
+Tests use a temporary SQLite database. Run them locally to obtain actual test results; this repository does not claim tests passed unless you run the command and see the result.
+
+## Docker
+```bash
+docker compose up --build
+```
+
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000). The SQLite database is stored in the data volume.
+
+## API Overview
+The standalone demo uses `X-User-ID` to simulate the authenticated user. This is a development-only adapter, not production authentication. During integration, replace it with the logged-in identity from Subsystem 1 and verify ownership on every request.
+- `GET /dashboard`
+- `GET /costs-carbon`
+- `GET /reports`
+- `GET /reports/download`
+- `GET /coach`
+- `POST /coach`
+
+## GitHub `faryal` Branch Workflow
+From the project directory, connect your GitHub repository as origin first, then run:
+
+```bash
+git init
+git switch -c faryal
+git add .
+git commit -m "Finalize Subsystem 4 implementation, templates, and passing test suite"
+git remote add origin <YOUR_REPOSITORY_URL>
+git push -u origin faryal
+```
+
+If your repository already exists and has a remote, do not repeat `git init` or `git remote add origin`. Create/switch to the branch and push it.
+
+## Team Video Presentation
+Add the real video URL here after the team records and uploads the 3–5 minute presentation:
+
+* **Presentation:** [https://drive.google.com/drive/folders/1uDiISZIS1JcYvcanFNMtXTVZVyKt_kZe?usp=drive_link](https://drive.google.com/drive/folders/1uDiISZIS1JcYvcanFNMtXTVZVyKt_kZe?usp=drive_link)
+
+## Before Submission Checklist
+- [x] Confirm team names and assigned subsystems.
+- [x] Review the UML diagrams against the team's approved architecture.
+- [x] Run `PYTHONPATH=. python3 -m pytest -v` and record the actual result (all tests passing).
+- [x] Push the code to the `faryal` branch.
+- [x] Replace the presentation placeholder with the real video URL.
+- [ ] Integrate identity and canonical readings from Subsystems 1 and 2 before production use.
