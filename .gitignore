@@ -1,6 +1,19 @@
+# Python & Virtual Environment
 __pycache__/
 *.pyc
-instance/
-*.db
-.pytest_cache/
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+
+# Environment Variables
 .env
+
+# Local Database & Runtime Files
+*.db
+*.sqlite
+*.pdf
+
+# OS Files
+.DS_Store
