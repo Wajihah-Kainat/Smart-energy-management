@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Energy Management - Reports</title>
+    <style>
+        body {
+            background-color: #F6F4F1;
+            font-family: Arial, sans-serif;
+            color: #2B2B2B;
+            margin: 0;
+            padding: 0;
+        }
+        /* Top Navigation Bar */
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 2px solid #E8730C;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo {
+            font-weight: bold;
+            color: #E8730C;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+        .navbar .nav-links a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #2B2B2B;
+        }
+        .navbar .nav-links a.active {
+            color: #E8730C;
+            font-weight: bold;
+            border-bottom: 2px solid #E8730C;
+            padding-bottom: 4px;
+        }
+        .navbar .user-info {
+            color: #2B2B2B;
+            font-size: 0.9rem;
+        }
+        /* Container & Cards */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #2B2B2B;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+        }
+        /* Buttons */
+        .btn-primary {
+            background-color: #E8730C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background-color: #C45F05;
+        }
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #E8730C;
+            border: 1px solid #E8730C;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background-color: #FDEBDB;
+        }
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #ffffff;
+        }
+        th {
+            background-color: #FDEBDB;
+            color: #2B2B2B;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        .alert-error {
+            background-color: #FADBD8;
+            color: #C0392B;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Shared Top Navigation Bar -->
+    <div class="navbar">
+        <a href="#" class="logo">⚡ Smart Energy</a>
+        <div class="nav-links">
+            <a href="#">Buildings</a>
+            <a href="#">Readings</a>
+            <a href="#">Dashboard</a>
+            <a href="#">Costs & Carbon</a>
+            <a href="/subsystem4/coach">Al Coach</a>
+        </div>
+        <div class="user-info">
+            Anna Becker | <a href="#" style="color: #E8730C; text-decoration: none;">Log out</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Reports</h1>
+        <div class="subtitle">Create and view reports</div>
+
+        {% if error %}
+        <div class="alert-error">{{ error }}</div>
+        {% endif %}
+
+        <!-- Create Report Form -->
+        <div class="card">
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="building">Building</label>
+                        <select name="building" id="building">
+                            <option value="Main office">Main office</option>
+                            <option value="Campus lab">Campus lab</option>
+                            <option value="Home">Home</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="period">Period</label>
+                        <select name="period" id="period">
+                            <option value="Last month">Last month</option>
+                            <option value="October 2026">October 2026</option>
+                            <option value="September 2026">September 2026</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">+ Create report</button>
+            </form>
+        </div>
+
+        <!-- Generated Reports List -->
+        <div class="card">
+            <h3>Existing Reports</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Building</th>
+                        <th>Period</th>
+                        <th>Created</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Main office</td>
+                        <td>October 2026</td>
+                        <td>2026-11-02</td>
+                        <td><a href="/subsystem4/report/pdf" class="btn-secondary">Open PDF</a></td>
+                    </tr>
+                    <tr>
+                        <td>Main office</td>
+                        <td>September 2026</td>
+                        <td>2026-10-01</td>
+                        <td><a href="/subsystem4/report/pdf" class="btn-secondary">Open PDF</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
