@@ -105,6 +105,18 @@ git push -u origin faryal
 
 If your repository already exists and has a remote, do not repeat `git init` or `git remote add origin`. Create/switch to the branch and push it.
 
+## Project Structure & Component List
+- `app.py`: Root application entry point for the Flask server.
+- `subsystem4/`:
+  - `__init__.py`: Blueprint and route handlers for Subsystem 4.
+  - `models.py`: Core logic classes (`DatabaseManager`, `AICoachService`, `ReportGenerator`).
+  - `db.py`: Database helper configuration and connection management.
+  - `services.py`: External service integrations and AI logic helpers.
+  - `errors.py`: Custom exception handlers (`Subsystem4Exception`).
+  - `templates/`: HTML templates (`dashboard.html`, `coach.html`, `reports.html`, `costs_carbon.html`).
+  - `static/`: Static assets (stylesheets, images, and frontend scripts).
+- `requirements.txt`: Project Python package dependencies.
+
 ## Team Video Presentation
 Add the real video URL here after the team records and uploads the 3–5 minute presentation:
 
