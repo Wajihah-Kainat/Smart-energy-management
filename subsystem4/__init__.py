@@ -49,7 +49,8 @@ def dashboard():
             error = f"Error adding log: {str(e)}"
 
     logs = get_all_logs()
-    return render_template('index.html', logs=logs, error=error)
+    # Updated 'index.html' to 'dashboard.html' per Arshia's instructions
+    return render_template('dashboard.html', logs=logs, error=error)
 
 
 @subsystem4_bp.route('/delete/<int:log_id>', methods=['POST'])
