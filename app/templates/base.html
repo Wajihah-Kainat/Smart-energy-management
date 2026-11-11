@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Smart Energy{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><img src="{{ url_for('static', filename='logo.svg') }}" alt="Smart Energy logo" height="32">Smart <span>Energy</span></div>
+    <div class="nav">
+      {% if g.user %}
+      {% set ep = request.endpoint or '' %}
+      <a class="{{ 'active' if ep.startswith('s1.building') }}" href="{{ url_for('s1.buildings') }}">Buildings</a>
+      <a class="{{ 'active' if ep == 'monitoring.dashboard' }}" href="{{ url_for('monitoring.dashboard') }}">Dashboard</a>
+      <a class="{{ 'active' if ep.startswith('monitoring.') and ep != 'monitoring.dashboard' }}" href="{{ url_for('monitoring.readings') }}">Readings</a>
+      <a class="{{ 'active' if ep.startswith('s3.') }}" href="{{ url_for('s3.costs_carbon') }}">Costs &amp; Carbon</a>
+      <a class="{{ 'active' if ep == 's4.coach' }}" href="{{ url_for('s4.coach') }}">AI Coach</a>
+      <a class="{{ 'active' if ep == 's4.reports' }}" href="{{ url_for('s4.reports') }}">Reports</a>
+      {% endif %}
+    </div>
+    {% if g.user %}
+    <form class="user" method="post" action="{{ url_for('s1.logout') }}">
+      {{ g.user['name'] }} &nbsp;|&nbsp; <button class="linkbtn" type="submit">Log out</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="page">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

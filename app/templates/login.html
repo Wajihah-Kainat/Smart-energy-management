@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Log in - Smart Energy{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="auth-left">
+    <div class="auth-title">Save energy.<br>Reduce carbon.</div>
+    <p>Track your buildings, see your usage and get tips from the AI coach.</p>
+  </div>
+  <div class="auth-right">
+    <div class="tabs">
+      <a class="tab {{ 'on' if tab != 'register' }}" href="{{ url_for('s1.login') }}">Log in</a>
+      <a class="tab {{ 'on' if tab == 'register' }}" href="{{ url_for('s1.login', tab='register') }}">Register</a>
+    </div>
+
+    {% if tab == 'register' %}
+    <form method="post" action="{{ url_for('s1.register') }}">
+      <label for="name">Name</label>
+      <input class="input" id="name" name="name" value="{{ form.name }}" placeholder="Your name" required>
+      <label for="email">Email</label>
+      <input class="input" id="email" name="email" type="email" value="{{ form.email }}" placeholder="name@email.com" required>
+      <label for="password">Password (at least 8 characters)</label>
+      <input class="input" id="password" name="password" type="password" required>
+      <div class="actions"><button class="btn" type="submit">Register</button></div>
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('s1.login') }}">
+      <label for="email">Email</label>
+      <input class="input" id="email" name="email" type="email" value="{{ form.email }}" placeholder="name@email.com" required>
+      <label for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" required>
+      <div class="actions"><button class="btn" type="submit">Log in</button></div>
+    </form>
+    <p class="sub">No account yet? Use the Register tab.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

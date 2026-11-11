@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Readings - Smart Energy{% endblock %}
+{% block content %}
+<div class="head">
+  <div><h1>Energy readings</h1><div class="sub">Record and manage the consumption of your devices</div></div>
+</div>
+
+{% if not devices %}
+<div class="card section"><b>No devices yet.</b>
+  <div class="sub">Readings belong to a device. Add a building and a device first on the <a href="{{ url_for('s1.buildings') }}">Buildings</a> page.</div>
+</div>
+{% else %}
+<div class="cols2">
+  <div class="card section">
+    <h2>Add reading</h2>
+    <form method="post" action="{{ url_for('monitoring.readings') }}">
+      <label for="device_id">Device</label>
+      <select class="input" name="device_id" id="device_id" required>
+        {% for d in devices %}<option value="{{ d['id'] }}">{{ d['building_name'] }} – {{ d['name'] }}</option>{% endfor %}
+      </select>
+      <label for="date">Reading date</label>
+      <input class="input" type="date" name="date" id="date" value="{{ today }}" required>
+      <label for="amount_kwh">Energy (kWh)</label>
+      <input class="input" type="number" name="amount_kwh" id="amount_kwh" step="0.01" min="0.01" placeholder="12.5" required>
+      <div class="actions"><button class="btn" type="submit">Save reading</button></div>
+    </form>
+  </div>
+
+  <div class="card section">
+    <h2>Live simulation</h2>
+    <div class="sub">Creates one simulated reading every 10 seconds</div>
+    <label for="simulation_device">Device</label>
+    <select class="input" id="simulation_device">
+      {% for d in devices %}<option value="{{ d['id'] }}">{{ d['building_name'] }} – {{ d['name'] }}</option>{% endfor %}
+    </select>
+    <div class="actions">
+      <button class="btn" type="button" id="startSimulation">Start</button>
+      <button class="btn sec" type="button" id="stopSimulation" disabled>Stop</button>
+    </div>
+    <p id="simulationStatus" class="muted">Simulation is stopped.</p>
+  </div>
+</div>
+{% endif %}
+
+<div class="card section">
+  <div class="row"><h2>Recorded readings</h2>
+    <a class="btn sec small" href="{{ url_for('monitoring.export_readings', device_id=selected_device, date_from=date_from, date_to=date_to) }}">Export CSV</a>
+  </div>
+  <form method="get" action="{{ url_for('monitoring.readings') }}" class="toolbar">
+    <div><label for="filter_device">Device</label>
+      <select class="input" name="device_id" id="filter_device">
+        <option value="">All devices</option>
+        {% for d in devices %}<option value="{{ d['id'] }}" {{ 'selected' if selected_device == d['id']|string }}>{{ d['building_name'] }} – {{ d['name'] }}</option>{% endfor %}
+      </select></div>
+    <div><label for="date_from">From</label><input class="input" type="date" id="date_from" name="date_from" value="{{ date_from }}"></div>
+    <div><label for="date_to">To</label><input class="input" type="date" id="date_to" name="date_to" value="{{ date_to }}"></div>
+    <div><button class="btn small" type="submit">Apply filter</button> <a class="btn sec small" href="{{ url_for('monitoring.readings') }}">Clear</a></div>
+  </form>
+
+  <table>
+    <thead><tr><th>Building</th><th>Device</th><th>Date</th><th>kWh</th><th>Type</th><th>Action</th></tr></thead>
+    <tbody id="readingsTableBody">
+      {% for r in readings %}
+      <tr>
+        <td>{{ r['building_name'] }}</td><td>{{ r['device_name'] }}</td><td>{{ r['date'] }}</td><td>{{ r['amount_kwh'] }}</td>
+        <td>{{ 'Simulated' if r['is_simulated'] else 'Real' }}</td>
+        <td class="row-actions">
+          <a class="btn sec small" href="{{ url_for('monitoring.edit_reading', reading_id=r['id']) }}">Edit</a>
+          <form method="post" action="{{ url_for('monitoring.remove_reading', reading_id=r['id']) }}"
+                onsubmit="return confirm('Delete this reading?');"><button class="btn danger small" type="submit">Delete</button></form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No readings available yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  let simulationTimer = null;
+  const startButton = document.getElementById("startSimulation");
+  const stopButton = document.getElementById("stopSimulation");
+  const statusText = document.getElementById("simulationStatus");
+  const deviceSelect = document.getElementById("simulation_device");
+  const tableBody = document.getElementById("readingsTableBody");
+
+  async function generateSimulatedReading() {
+    try {
+      const response = await fetch("{{ url_for('monitoring.simulate_reading') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_id: deviceSelect.value })
+      });
+      const result = await response.json();
+      if (!result.success) { statusText.textContent = "Simulation error: " + result.message; return; }
+      const reading = result.reading;
+      const row = document.createElement("tr");
+      for (const text of ["", reading.device_name, reading.date, reading.amount_kwh, "Simulated", "Reload page to edit or delete"]) {
+        const cell = document.createElement("td"); cell.textContent = text; row.appendChild(cell);
+      }
+      tableBody.prepend(row);
+      statusText.textContent = "Latest simulated reading: " + reading.amount_kwh + " kWh";
+    } catch (error) {
+      statusText.textContent = "Could not generate simulated reading.";
+    }
+  }
+  if (startButton) {
+    startButton.addEventListener("click", function () {
+      if (simulationTimer !== null) { return; }
+      generateSimulatedReading();
+      simulationTimer = setInterval(generateSimulatedReading, 10000);
+      startButton.disabled = true; stopButton.disabled = false; deviceSelect.disabled = true;
+      statusText.textContent = "Live simulation is running...";
+    });
+    stopButton.addEventListener("click", function () {
+      clearInterval(simulationTimer); simulationTimer = null;
+      startButton.disabled = false; stopButton.disabled = true; deviceSelect.disabled = false;
+      statusText.textContent = "Simulation stopped.";
+    });
+  }
+</script>
+{% endblock %}

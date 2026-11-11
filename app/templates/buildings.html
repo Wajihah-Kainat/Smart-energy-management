@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}My buildings - Smart Energy{% endblock %}
+{% block content %}
+<div class="head">
+  <div><h1>My buildings</h1><div class="sub">All buildings of your account</div></div>
+</div>
+
+<div class="grid g21">
+  <div class="cards">
+    {% for b in buildings %}
+    <div class="card">
+      <div class="row"><b class="big">{{ b['name'] }}</b><span class="badge">{{ b['type'] }}</span></div>
+      <div class="sub">{{ b['address'] }}</div>
+      <div class="facts">Comfort temperature: <b>{{ '%g' % b['comfort_temp'] }} °C</b><br>Devices: <b>{{ b['device_count'] }}</b></div>
+      <div class="row-actions">
+        <a class="btn small" href="{{ url_for('s1.building_detail', building_id=b['id']) }}">Open</a>
+        <a class="btn sec small" href="{{ url_for('s1.buildings', edit=b['id']) }}">Edit</a>
+        <form method="post" action="{{ url_for('s1.delete_building', building_id=b['id']) }}"
+              onsubmit="return confirm('Delete this building and its devices?');">
+          <button class="btn danger small" type="submit">Delete</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="card"><b>No buildings yet.</b><div class="sub">Add your first building with the form on the right.</div></div>
+    {% endfor %}
+  </div>
+
+  <div class="card form-card">
+    <b>{{ 'Edit building' if edit_building else 'Add building' }}</b>
+    <form method="post" action="{{ url_for('s1.edit_building', building_id=edit_building['id']) if edit_building else url_for('s1.add_building') }}">
+      <label for="name">Name</label>
+      <input class="input" id="name" name="name" value="{{ form.name }}" placeholder="Main office" required>
+      <label for="address">Address</label>
+      <input class="input" id="address" name="address" value="{{ form.address }}" placeholder="Street, city" required>
+      <label for="type">Type</label>
+      <select class="input" id="type" name="type">
+        {% for t in building_types %}<option value="{{ t }}" {{ 'selected' if form.type == t }}>{{ t }}</option>{% endfor %}
+      </select>
+      <label for="comfort_temp">Comfort temperature (°C, 10 to 30)</label>
+      <input class="input" id="comfort_temp" name="comfort_temp"
+             value="{{ '%g' % form.comfort_temp if form.comfort_temp is number else form.comfort_temp }}"
+             placeholder="Empty = {{ default_temp }}">
+      <div class="actions">
+        <button class="btn" type="submit">{{ 'Save changes' if edit_building else 'Save building' }}</button>
+        {% if edit_building %}<a class="btn sec" href="{{ url_for('s1.buildings') }}">Cancel</a>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

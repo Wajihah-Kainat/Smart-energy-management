@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Reports - Smart Energy{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Reports</h1><div class="sub">A report holds usage, cost, carbon, goal, score and the coach's tip for one building and month</div></div></div>
+
+{% if not buildings %}
+<div class="card"><b>No buildings yet.</b>
+  <div class="sub">Add a building on the <a href="{{ url_for('s1.buildings') }}">Buildings</a> page first.</div></div>
+{% else %}
+<div class="card section">
+  <form method="post" action="{{ url_for('s4.reports') }}" class="toolbar">
+    <div><label for="building_id">Building</label>
+      <select class="input" id="building_id" name="building_id">
+        {% for b in buildings %}<option value="{{ b['id'] }}">{{ b['name'] }}</option>{% endfor %}
+      </select></div>
+    <div><label for="period">Period</label>
+      <select class="input" id="period" name="period">
+        {% for m in months %}<option value="{{ m }}" {{ 'selected' if month == m }}>{{ m }}</option>{% endfor %}
+      </select></div>
+    <div><button class="btn" type="submit">Create report</button></div>
+  </form>
+</div>
+
+<div class="card section">
+  <table>
+    <thead><tr><th>Building</th><th>Period</th><th>Created</th><th>Energy</th><th>Cost</th><th>Carbon</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for row in rows %}
+      {% set r = row.report %}{% set s = row.summary %}
+      <tr>
+        <td>{{ r['building'] }}</td><td>{{ r['period'] }}</td><td>{{ r['created_date'] }}</td>
+        <td>{{ s.energy_kwh }} kWh</td>
+        <td>{% if s.configured %}€{{ '%.2f' % s.cost }}{% else %}<span class="muted">set price</span>{% endif %}</td>
+        <td>{% if s.configured %}{{ '%.2f' % s.carbon_kg }} kg{% else %}—{% endif %}</td>
+        <td class="row-actions">
+          <a class="btn sec small" href="{{ url_for('s4.report_pdf', report_id=r['id']) }}">Open PDF</a>
+          <form method="post" action="{{ url_for('s4.report_delete', report_id=r['id']) }}" onsubmit="return confirm('Delete this report?');"><button class="btn danger small" type="submit">Delete</button></form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="muted">No reports created yet. Use the form above to create one.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

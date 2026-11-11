@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}AI Coach - Smart Energy{% endblock %}
+{% block content %}
+<div class="head"><div><h1>AI sustainability coach</h1><div class="sub">Practical tips for saving energy, based on your real usage</div></div></div>
+
+{% if not buildings %}
+<div class="card"><b>No buildings yet.</b>
+  <div class="sub">Add a building on the <a href="{{ url_for('s1.buildings') }}">Buildings</a> page first.</div></div>
+{% else %}
+<div class="card section">
+  <form method="post" action="{{ url_for('s4.coach') }}" class="toolbar">
+    <div><label for="building_id">Building</label>
+      <select class="input" id="building_id" name="building_id">
+        {% for b in buildings %}<option value="{{ b['id'] }}" {{ 'selected' if building_id == b['id'] }}>{{ b['name'] }}</option>{% endfor %}
+      </select></div>
+    <div><label for="period">Period</label>
+      <select class="input" id="period" name="period">
+        {% for m in months %}<option value="{{ m }}" {{ 'selected' if month == m }}>{{ m }}</option>{% endfor %}
+      </select></div>
+    <div><button class="btn" type="submit">Get saving tips</button></div>
+  </form>
+  {% if has_key %}
+  <div class="note"><b>What is sent to the AI:</b> only a short summary (building type, comfort temperature, total usage, trend and goal progress). No name, email or address is shared.</div>
+  {% else %}
+  <div class="note"><b>No OpenAI key set.</b> The coach uses simple built-in tips. To use OpenAI, add your key to the <code>.env</code> file and restart (see README). Nothing is sent to any AI service.</div>
+  {% endif %}
+</div>
+
+{% if summary %}
+<div class="kpis">
+  <div class="kpi"><span>Energy in {{ summary.month }}</span><strong>{{ summary.energy_kwh }} kWh</strong><small>from Readings</small></div>
+  <div class="kpi"><span>Trend</span><strong>{% if summary.change_percent is not none %}{{ '%+.1f' % summary.change_percent }}%{% else %}—{% endif %}</strong><small>vs. month before</small></div>
+  <div class="kpi"><span>Goal used</span><strong>{% if summary.goal_percent is not none %}{{ summary.goal_percent }}%{% else %}—{% endif %}</strong><small>from Costs &amp; Carbon</small></div>
+  <div class="kpi"><span>Comfort temperature</span><strong>{{ '%g' % summary.comfort_temp }} °C</strong><small>from Buildings</small></div>
+</div>
+{% endif %}
+
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+
+<div class="card section">
+  <h2>Your tips</h2>
+  {% if ai_tips %}
+    <ol class="tips">{% for tip in ai_tips %}<li>{{ tip }}</li>{% endfor %}</ol>
+    <div class="sub">{{ tip_label }}</div>
+  {% else %}
+    <p class="muted">Select a building and period above, then click "Get saving tips".</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

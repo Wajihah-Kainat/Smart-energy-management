@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Edit reading - Smart Energy{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Edit reading</h1><div class="sub">Update an existing energy record</div></div></div>
+<div class="card" style="max-width:460px">
+  <form method="post">
+    <label for="device_id">Device</label>
+    <select class="input" name="device_id" id="device_id" required>
+      {% for d in devices %}<option value="{{ d['id'] }}" {{ 'selected' if d['id'] == reading['device_id'] }}>{{ d['building_name'] }} – {{ d['name'] }}</option>{% endfor %}
+    </select>
+    <label for="date">Reading date</label>
+    <input class="input" type="date" name="date" id="date" value="{{ reading['date'] }}" required>
+    <label for="amount_kwh">Energy (kWh)</label>
+    <input class="input" type="number" name="amount_kwh" id="amount_kwh" step="0.01" min="0.01" value="{{ reading['amount_kwh'] }}" required>
+    <div class="actions">
+      <button class="btn" type="submit">Save changes</button>
+      <a class="btn sec" href="{{ url_for('monitoring.readings') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

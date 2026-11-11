@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Costs &amp; Carbon - Smart Energy{% endblock %}
+{% block content %}
+<div class="head">
+  <div><h1>Costs &amp; carbon</h1><div class="sub">Cost, carbon, goal and sustainability score of a building</div></div>
+  <form method="get" class="toolbar">
+    <div>
+      <label for="building_id">Building</label>
+      <select class="input" id="building_id" name="building_id" onchange="this.form.submit()">
+        {% for b in buildings %}<option value="{{ b['id'] }}" {{ 'selected' if building_id == b['id'] }}>{{ b['name'] }}</option>{% endfor %}
+      </select>
+    </div>
+  </form>
+</div>
+
+{% if not buildings %}
+<div class="card"><b>No buildings yet.</b>
+  <div class="sub">Add a building and devices on the <a href="{{ url_for('s1.buildings') }}">Buildings</a> page, then record readings under <a href="{{ url_for('monitoring.readings') }}">Readings</a>.</div>
+</div>
+{% else %}
+<div class="cols2">
+  <div class="card section">
+    <h2>1. Price and carbon factor</h2>
+    <div class="sub">Used to turn the kWh of your readings into cost and carbon</div>
+    <form id="settings-form">
+      <input type="hidden" name="building_id" value="{{ building_id }}">
+      <label>Price per kWh (€)</label>
+      <input class="input" name="price_per_kwh" type="number" min="0" step="0.0001" value="{{ settings.get_price_per_kwh() if settings else '0.30' }}" required>
+      <label>Emission factor (kg CO₂ per kWh)</label>
+      <input class="input" name="emission_factor" type="number" min="0" step="0.0001" value="{{ settings.get_emission_factor() if settings else '0.40' }}" required>
+      <label>Factor source</label>
+      <input class="input" name="factor_source" value="{{ settings.get_factor_source() if settings else 'Illustrative demo value' }}" required>
+      <div class="actions"><button class="btn" type="submit">Save settings</button></div>
+    </form>
+  </div>
+
+  <div class="card section">
+    <h2>2. Monthly goal</h2>
+    <div class="sub">Target for the month and daily limit for alerts</div>
+    <form id="goal-form">
+      <input type="hidden" name="building_id" value="{{ building_id }}">
+      <label>Month</label>
+      <input class="input" name="month" type="month" value="{{ goal.get_month() if goal else month }}" required>
+      <label>Target (kWh)</label>
+      <input class="input" name="target_kwh" type="number" min="0.001" step="0.001" value="{{ goal.get_target_kwh() if goal else '300' }}" required>
+      <label>Daily limit (kWh)</label>
+      <input class="input" name="daily_limit_kwh" type="number" min="0.001" step="0.001" value="{{ goal.get_daily_limit_kwh() if goal else '20' }}" required>
+      <div class="actions"><button class="btn" type="submit">Save goal</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card section">
+  <div class="row"><div><h2>3. Analytics</h2>
+    <div class="sub">The kWh come from the <a href="{{ url_for('monitoring.readings') }}">readings</a> of this building's devices</div></div>
+    <form id="analytics-form" class="toolbar">
+      <input type="hidden" name="building_id" value="{{ building_id }}">
+      <div><label>Month</label><input class="input" name="month" type="month" value="{{ month }}" required></div>
+      <div><button class="btn" type="submit">Load</button></div>
+    </form>
+  </div>
+  <div class="kpis" style="margin-top:14px">
+    <div class="kpi"><span>Energy</span><strong id="kpi-energy">—</strong></div>
+    <div class="kpi"><span>Cost</span><strong id="kpi-cost">—</strong></div>
+    <div class="kpi"><span>Carbon</span><strong id="kpi-carbon">—</strong></div>
+    <div class="kpi"><span>Sustainability score</span><strong id="kpi-score">—</strong></div>
+  </div>
+  <div id="goal-box" class="muted"></div>
+  <div class="progress" id="goal-bar" hidden><div></div></div>
+  <div id="analytics-message" class="msg" role="status">Save the settings, then load the analytics.</div>
+</div>
+
+<div class="card section">
+  <div class="row"><div><h2>Alerts</h2><div class="sub">An alert is created when a day is above the daily limit</div></div>
+    <div class="row-actions">
+      <input class="input" type="date" id="alert-date" value="{{ today }}" style="width:auto">
+      <button id="evaluate-alert" type="button" class="btn sec small">Check this day</button>
+    </div>
+  </div>
+  <div id="alerts"></div>
+</div>
+{% endif %}
+
+<script>window.S3_BUILDING = {{ (building_id or 0) | tojson }};</script>
+<script src="{{ url_for('static', filename='s3.js') }}"></script>
+{% endblock %}
