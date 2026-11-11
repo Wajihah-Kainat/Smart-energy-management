@@ -31,9 +31,9 @@ monitoring_bp = Blueprint("monitoring", __name__)
 @monitoring_bp.route("/readings", methods=["GET", "POST"])
 def readings():
 
-    # ---------------------------------
+
     # ADD NEW ENERGY READING
-    # ---------------------------------
+
     if request.method == "POST":
         try:
             device_id = int(request.form["device_id"])
@@ -225,20 +225,42 @@ def edit_reading(reading_id):
     )
 @monitoring_bp.route("/readings/export")
 def export_readings():
+    """Export readings using the same filters as the readings page."""
+
+    device_filter = request.args.get("device_id", "").strip()
+    date_from = request.args.get("date_from", "").strip()
+    date_to = request.args.get("date_to", "").strip()
+
+    query = """
+        SELECT
+            r.id,
+            d.name AS device_name,
+            r.date,
+            r.amount_kwh,
+            r.is_simulated
+        FROM energy_reading AS r
+        JOIN demo_devices AS d
+            ON d.id = r.device_id
+        WHERE 1 = 1
+    """
+    parameters = []
+
+    if device_filter:
+        query += " AND r.device_id = ?"
+        parameters.append(int(device_filter))
+
+    if date_from:
+        query += " AND r.date >= ?"
+        parameters.append(date_from)
+
+    if date_to:
+        query += " AND r.date <= ?"
+        parameters.append(date_to)
+
+    query += " ORDER BY r.date ASC, r.id ASC"
 
     with get_connection() as connection:
-        rows = connection.execute("""
-            SELECT
-                r.id,
-                d.name AS device_name,
-                r.date,
-                r.amount_kwh,
-                r.is_simulated
-            FROM energy_reading AS r
-            JOIN demo_devices AS d
-                ON d.id = r.device_id
-            ORDER BY r.date ASC, r.id ASC
-        """).fetchall()
+        rows = connection.execute(query, parameters).fetchall()
 
     output = io.StringIO()
 

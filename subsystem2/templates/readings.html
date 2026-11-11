@@ -124,7 +124,12 @@
 
     <p>
         <a
-            href="{{ url_for('monitoring.export_readings') }}"
+            href="{{ url_for(
+                'monitoring.export_readings',
+                device_id=selected_device,
+                date_from=date_from,
+                date_to=date_to
+            ) }}"
             class="export-button"
         >
             Export CSV
