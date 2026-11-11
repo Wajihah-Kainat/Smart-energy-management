@@ -1,5 +1,6 @@
-.env
-.env.txt
-*.db
 __pycache__/
-.venv/
+*.pyc
+instance/
+*.db
+.pytest_cache/
+.env
