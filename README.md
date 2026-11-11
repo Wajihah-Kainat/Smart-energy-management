@@ -246,7 +246,9 @@ The architecture diagram is in [UML diagrams](#12-uml-diagrams).
 │   ├── __init__.py         create_app(): settings, Blueprints, .env loader
 │   ├── db.py               get_db(), close_db(), init_db()
 │   ├── schema.sql          all tables of the project
-│   ├── s1.py               S1: login, buildings, devices
+│   ├── s1/                 S1: User and Building Management
+│   │   ├── models.py         classes User, Building, Device (checks and database writes)
+│   │   └── routes.py         the Flask pages: login, register, buildings, devices
 │   ├── s2/                 S2: Energy Monitoring and Dashboard
 │   │   ├── database.py       connection helper and shared SQL
 │   │   ├── models/           energy_reading.py (database functions), energy_reading_class.py (class EnergyReading)
@@ -264,7 +266,7 @@ The architecture diagram is in [UML diagrams](#12-uml-diagrams).
 │   │   └── data.py           collects the numbers from S1, S2, S3
 │   ├── templates/          base.html, login, buildings, building_detail, s2/, s3/, s4/
 │   └── static/             style.css, logo.svg, s3.js, vendor/chart.umd.js
-├── tests/                  pytest tests (73)
+├── tests/                  pytest tests (85)
 └── docs/
     ├── screenshots/        pictures used in this README
     └── uml/                UML diagrams as pictures
@@ -451,8 +453,8 @@ Arrows between the subsystems are Python imports. S3 does not import S1 or S2; i
 flowchart LR
     Browser["Browser<br/>(HTML pages, Chart.js, s3.js)"]
     Factory["app/__init__.py<br/>create_app()"]
-    subgraph S1["S1 User & Building Management (app/s1.py)"]
-        s1["Blueprint s1<br/>login, register, buildings, devices<br/>login_required, get_own_building"]
+    subgraph S1["S1 User & Building Management (app/s1/)"]
+        s1["Blueprint s1 + classes User, Building, Device<br/>login, register, buildings, devices<br/>login_required, get_own_building"]
     end
     subgraph S2["S2 Energy Monitoring & Dashboard (app/s2/)"]
         s2["Blueprint monitoring<br/>dashboard, readings, export, simulate<br/>Statistics, models, services<br/>reads S1 tables (devices, buildings) with SQL"]
@@ -486,43 +488,55 @@ flowchart LR
 
 ### S1 User and Building Management
 
-S1 has no Python classes: it is a Flask Blueprint with functions (`app/s1.py`). `User`, `Building` and `Device` are the data model (database tables, see [Database](#11-database)). The functions read and write these tables.
+| Class | Purpose |
+|---|---|
+| `User` | a person who can log in; checks the registration data, creates the password hash, checks a password, saves the user |
+| `Building` | a building of one user; checks name, address, type and comfort temperature (10 to 30 °C, empty = 21); saves, updates and deletes it |
+| `Device` | an energy device of one building; checks name and energy type; saves, updates and deletes it |
+
+The three classes are in `app/s1/models.py`. The Flask pages are functions in `app/s1/routes.py` (`login`, `register`, `buildings`, `add_device` and so on). They use the three classes for the checks and for writing to the database. `User`, `Building` and `Device` are also the tables described in [Database](#11-database).
 
 ```mermaid
 classDiagram
     direction LR
     class User {
-        +INTEGER id
-        +TEXT name
-        +TEXT email
-        +TEXT password_hash
-        +TEXT created_at
+        +int id
+        +str name
+        +str email
+        +str password_hash
+        +str created_at
+        +check_registration(name, email, password)$ str
+        +create(name, email, password)$ User
+        +find_by_email(db, email)$ User
+        +password_matches(password) bool
+        +insert(db) int
     }
     class Building {
-        +INTEGER id
-        +INTEGER user_id
-        +TEXT name
-        +TEXT address
-        +TEXT type
-        +REAL comfort_temp
+        +int id
+        +int user_id
+        +str name
+        +str address
+        +str type
+        +float comfort_temp
+        +check(name, address, building_type, comfort_text)$ tuple
+        +insert(db) int
+        +update(db)
+        +delete(db, building_id)$
     }
     class Device {
-        +INTEGER id
-        +INTEGER building_id
-        +TEXT name
-        +TEXT energy_type
+        +int id
+        +int building_id
+        +str name
+        +str energy_type
+        +check(name, energy_type)$ str
+        +insert(db) int
+        +update(db)
+        +delete(db, device_id)$
     }
-    class s1_py {
-        <<module app/s1.py>>
-        +tuple BUILDING_TYPES$
-        +tuple ENERGY_TYPES$
-        +float DEFAULT_COMFORT_TEMP$
-        +int MIN_PASSWORD_LENGTH$
+    class s1_routes {
+        <<module app/s1/routes.py>>
         +load_logged_in_user()
         +login_required(view)
-        +check_registration(name, email, password)
-        +check_building(name, address, building_type, comfort_text)
-        +check_device(name, energy_type)
         +get_own_building(building_id)
         +get_own_device(device_id)
         +login()
@@ -539,11 +553,11 @@ classDiagram
         +show_buildings(form, edit_building, status)
         +show_building(building, form, edit_device, status)
     }
-    User "1" --> "0..*" Building : owns
-    Building "1" --> "0..*" Device : has
-    s1_py ..> User : reads and writes (table users)
-    s1_py ..> Building : reads and writes (table buildings)
-    s1_py ..> Device : reads and writes (table devices)
+    User --> Building : owns, one to many
+    Building --> Device : has, one to many
+    s1_routes ..> User : uses
+    s1_routes ..> Building : uses
+    s1_routes ..> Device : uses
 ```
 
 *Picture: `docs/uml/s1_model.png`*
@@ -835,7 +849,7 @@ The emission factor and the price are **illustrative demo values** (0.40 kg CO�
 
 ## 15. Testing
 
-The project has **73 automatic tests** (pytest). They use a fresh temporary database for every test, so they never change your own data, and a fake OpenAI, so they never send real requests.
+The project has **85 automatic tests** (pytest). They use a fresh temporary database for every test, so they never change your own data, and a fake OpenAI, so they never send real requests.
 
 ### Run the tests
 
@@ -849,12 +863,13 @@ python -m pytest -v -x            # stop at the first failure
 python -m pytest -v -s            # also show print output
 ```
 
-Result of the last run (executed on the final code): **73 passed**.
+Result of the last run (executed on the final code): **85 passed**.
 
 ### Test files
 
 | File | Tests | What it checks |
 |---|---|---|
+| `tests/test_s1_classes.py` | 12 | the S1 classes: `User` (checks, password hash, save and find by email), `Building` (checks, default comfort temperature, save, update, delete with its devices), `Device` (checks, save, update, delete) |
 | `tests/test_s1.py` | 19 | register, login, logout, password hash, duplicate email, bad email, short password, wrong password, login required, add/edit/delete buildings and devices, default comfort temperature, bad input, a second user cannot see or change my building |
 | `tests/test_s2_readings.py` | 14 | devices come from S1, add/edit/delete readings, invalid dates and amounts, unknown device, filter and CSV export, live simulation, dashboard numbers (kWh and device count from S1), totals per user and building, readings are deleted with their device or building |
 | `tests/test_s2_error_handler.py` | 5 | validation of energy amounts and device ids |
@@ -915,7 +930,7 @@ These are the requirements that are implemented in the final project. Each one i
 | S1-N6 | Data survives a restart | Done | SQLite file |
 | S1-N7 | Secret key from an environment variable | Done | `SECRET_KEY`; a development default is used if it is not set |
 | S1-N8 | Works on phone and PC | Done | checked at 390 px width, no sideways scrolling |
-| S1-N9 | Login and access rules tested | Done | 19 tests |
+| S1-N9 | Login and access rules tested | Done | 19 page tests and 12 class tests |
 | S1-N10 | Small functions with short comments | Done | |
 
 ### S2 Energy Monitoring and Dashboard: 17 requirements
@@ -1017,8 +1032,8 @@ Possible improvements:
 
 ## 20. Screencast and presentation
 
-- **Screencast:** 
-
+- **Screencast (7 minutes):** [add the link here]
+- **Presentation:** [add the link or the file path here, for example `presentation/`]
 
 ---
 
