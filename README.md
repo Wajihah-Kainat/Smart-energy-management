@@ -1017,8 +1017,8 @@ Possible improvements:
 
 ## 20. Screencast and presentation
 
-- **Screencast:** [add the link here]
-- **Presentation:** [add the link or the file path here, for example `presentation/`]
+- **Screencast:** 
+
 
 ---
 
