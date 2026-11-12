@@ -1032,8 +1032,11 @@ Possible improvements:
 
 ## 20. Screencast and presentation
 
-- **Screencast (7 minutes):** [add the link here]
-- **Presentation:** [add the link or the file path here, for example `presentation/`]
+- **Screencast (7 minutes):**
+ https://drive.google.com/file/d/1L4Oens1D1TlREgp7fuVYuM_o-pR_F-8c/view?usp=sharing
+
+- **Presentation:**
+https://docs.google.com/presentation/d/13VqbM7LQVpTWZ_kuE5PIQuMwTtEEuTUoeqQ1IYeAZ-I/edit?usp=sharing
 
 ---
 
